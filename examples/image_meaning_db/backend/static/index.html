@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Meaning DB</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --border: #2a2d3a;
+    --text: #e1e4ed;
+    --muted: #8b8fa3;
+    --accent: #6c5ce7;
+    --accent-hover: #7f71ed;
+    --success: #2ecc71;
+    --card-bg: #1e2130;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  .container { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+  .subtitle { color: var(--muted); margin-bottom: 2rem; font-size: 0.9rem; }
+  .stats { color: var(--muted); font-size: 0.85rem; margin-bottom: 1.5rem; }
+
+  .tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .tab {
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    font-size: 0.95rem;
+    transition: all 0.15s;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    font-weight: 600;
+  }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+  .drop-zone:hover, .drop-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(108, 92, 231, 0.05);
+  }
+  .drop-zone input { display: none; }
+  .drop-zone p { color: var(--muted); margin-top: 0.5rem; font-size: 0.9rem; }
+  .drop-zone .icon { font-size: 2rem; margin-bottom: 0.5rem; }
+
+  .preview-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .preview-img {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+  }
+  .preview-info { flex: 1; }
+  .preview-info p { color: var(--muted); font-size: 0.85rem; margin-bottom: 0.5rem; }
+
+  button {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 0.65rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .status {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    display: none;
+  }
+  .status.show { display: block; }
+  .status.info { background: rgba(108, 92, 231, 0.1); color: var(--accent); }
+  .status.success { background: rgba(46, 204, 113, 0.1); color: var(--success); }
+  .status.error { background: rgba(231, 76, 60, 0.1); color: #e74c3c; }
+
+  .results {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  .result-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.15s;
+  }
+  .result-card:hover { transform: translateY(-2px); }
+  .result-card img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    display: block;
+  }
+  .result-card .card-info {
+    padding: 0.6rem 0.75rem;
+  }
+  .result-card .similarity {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--accent);
+  }
+  .result-card .card-name {
+    color: var(--muted);
+    font-size: 0.75rem;
+    margin-top: 0.2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .result-card .card-desc {
+    color: var(--text);
+    font-size: 0.8rem;
+    margin-top: 0.35rem;
+    line-height: 1.3;
+  }
+  .result-card .rank {
+    font-size: 0.7rem;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  textarea.description {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 0.6rem 0.75rem;
+    font-family: inherit;
+    font-size: 0.9rem;
+    resize: vertical;
+    min-height: 72px;
+    margin-bottom: 0.75rem;
+  }
+  textarea.description:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .loading {
+    display: inline-block;
+    width: 16px; height: 16px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    vertical-align: middle;
+    margin-right: 0.5rem;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Image Meaning DB</h1>
+  <p class="subtitle">Semantic image search powered by CLIP embeddings</p>
+  <p class="stats" id="stats">Loading...</p>
+
+  <div class="tabs">
+    <div class="tab active" data-panel="submit">Submit Image</div>
+    <div class="tab" data-panel="search">Search by Image</div>
+  </div>
+
+  <!-- Submit Panel -->
+  <div class="panel active" id="panel-submit">
+    <div class="drop-zone" id="submit-drop">
+      <div class="icon">&#128444;</div>
+      <p>Drop, paste (Ctrl/Cmd+V), or click to browse</p>
+      <input type="file" accept="image/*" id="submit-file">
+    </div>
+    <div id="submit-preview" style="display:none">
+      <div class="preview-container">
+        <img class="preview-img" id="submit-preview-img">
+        <div class="preview-info">
+          <p id="submit-file-name"></p>
+          <textarea class="description" id="submit-description"
+            placeholder="Describe this image (optional) — e.g. 'red coffee mug on wooden desk'"></textarea>
+          <button id="submit-btn">Submit to Database</button>
+        </div>
+      </div>
+    </div>
+    <div class="status" id="submit-status"></div>
+  </div>
+
+  <!-- Search Panel -->
+  <div class="panel" id="panel-search">
+    <div class="drop-zone" id="search-drop">
+      <div class="icon">&#128269;</div>
+      <p>Drop, paste (Ctrl/Cmd+V), or click to browse a query image</p>
+      <input type="file" accept="image/*" id="search-file">
+    </div>
+    <div id="search-preview" style="display:none">
+      <div class="preview-container">
+        <img class="preview-img" id="search-preview-img">
+        <div class="preview-info">
+          <p id="search-file-name"></p>
+          <button id="search-btn">Find Similar Images</button>
+        </div>
+      </div>
+    </div>
+    <div class="status" id="search-status"></div>
+    <div class="results" id="search-results"></div>
+  </div>
+</div>
+
+<script>
+  // Tabs
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+    });
+  });
+
+  // Drop zones
+  function setupDropZone(dropEl, fileInput, previewImg, fileNameEl, previewContainer) {
+    let selectedFile = null;
+
+    dropEl.addEventListener('click', () => fileInput.click());
+    dropEl.addEventListener('dragover', e => { e.preventDefault(); dropEl.classList.add('dragover'); });
+    dropEl.addEventListener('dragleave', () => dropEl.classList.remove('dragover'));
+    dropEl.addEventListener('drop', e => {
+      e.preventDefault();
+      dropEl.classList.remove('dragover');
+      if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length) handleFile(fileInput.files[0]);
+    });
+
+    function handleFile(file) {
+      selectedFile = file;
+      const url = URL.createObjectURL(file);
+      previewImg.src = url;
+      fileNameEl.textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+      previewContainer.style.display = 'block';
+    }
+
+    return { getFile: () => selectedFile, handleFile };
+  }
+
+  const submitZone = setupDropZone(
+    document.getElementById('submit-drop'),
+    document.getElementById('submit-file'),
+    document.getElementById('submit-preview-img'),
+    document.getElementById('submit-file-name'),
+    document.getElementById('submit-preview')
+  );
+
+  const searchZone = setupDropZone(
+    document.getElementById('search-drop'),
+    document.getElementById('search-file'),
+    document.getElementById('search-preview-img'),
+    document.getElementById('search-file-name'),
+    document.getElementById('search-preview')
+  );
+
+  const getSubmitFile = submitZone.getFile;
+  const getSearchFile = searchZone.getFile;
+
+  document.addEventListener('paste', (e) => {
+    const target = e.target;
+    if (target && (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT')) return;
+    const items = e.clipboardData && e.clipboardData.items;
+    if (!items) return;
+    for (const item of items) {
+      if (item.kind === 'file' && item.type.startsWith('image/')) {
+        const blob = item.getAsFile();
+        if (!blob) continue;
+        const ext = (item.type.split('/')[1] || 'png').split('+')[0];
+        const file = new File([blob], `pasted-${Date.now()}.${ext}`, { type: item.type });
+        const activeTab = document.querySelector('.tab.active').dataset.panel;
+        (activeTab === 'submit' ? submitZone : searchZone).handleFile(file);
+        e.preventDefault();
+        break;
+      }
+    }
+  });
+
+  function showStatus(id, msg, type) {
+    const el = document.getElementById(id);
+    el.className = 'status show ' + type;
+    el.innerHTML = msg;
+  }
+
+  // Stats
+  async function loadStats() {
+    try {
+      const resp = await fetch('/api/stats');
+      const data = await resp.json();
+      document.getElementById('stats').textContent = data.total_images + ' images in database';
+    } catch(e) {
+      document.getElementById('stats').textContent = 'Could not load stats';
+    }
+  }
+  loadStats();
+
+  // Submit
+  document.getElementById('submit-btn').addEventListener('click', async () => {
+    const file = getSubmitFile();
+    if (!file) return;
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    showStatus('submit-status', '<span class="loading"></span> Embedding image...', 'info');
+
+    const form = new FormData();
+    form.append('file', file);
+    form.append('description', document.getElementById('submit-description').value);
+
+    try {
+      const resp = await fetch('/api/submit', { method: 'POST', body: form });
+      const data = await resp.json();
+      if (resp.ok) {
+        showStatus('submit-status',
+          'Image stored! ID: ' + data.id + ' &mdash; ' + data.total_images + ' total images in DB', 'success');
+        document.getElementById('submit-description').value = '';
+        loadStats();
+      } else {
+        showStatus('submit-status', 'Error: ' + JSON.stringify(data), 'error');
+      }
+    } catch(e) {
+      showStatus('submit-status', 'Request failed: ' + e.message, 'error');
+    }
+    btn.disabled = false;
+  });
+
+  // Search
+  document.getElementById('search-btn').addEventListener('click', async () => {
+    const file = getSearchFile();
+    if (!file) return;
+    const btn = document.getElementById('search-btn');
+    btn.disabled = true;
+    showStatus('search-status', '<span class="loading"></span> Embedding and searching...', 'info');
+    document.getElementById('search-results').innerHTML = '';
+
+    const form = new FormData();
+    form.append('file', file);
+
+    try {
+      const resp = await fetch('/api/search', { method: 'POST', body: form });
+      const data = await resp.json();
+      if (resp.ok) {
+        if (data.results.length === 0) {
+          showStatus('search-status', data.message || 'No results found.', 'info');
+        } else {
+          showStatus('search-status', 'Found ' + data.results.length + ' results', 'success');
+          const container = document.getElementById('search-results');
+          const escape = s => (s || '').replace(/[&<>"']/g, c =>
+            ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+          data.results.forEach((r, i) => {
+            const card = document.createElement('div');
+            card.className = 'result-card';
+            const descHtml = r.description
+              ? `<div class="card-desc">${escape(r.description)}</div>` : '';
+            card.innerHTML = `
+              <img src="/api/images/${r.filename}" alt="${escape(r.original_name)}">
+              <div class="card-info">
+                <span class="rank">#${i + 1}</span>
+                <span class="similarity">${(r.similarity * 100).toFixed(1)}%</span>
+                <div class="card-name">${escape(r.original_name)}</div>
+                ${descHtml}
+              </div>`;
+            container.appendChild(card);
+          });
+        }
+      } else {
+        showStatus('search-status', 'Error: ' + JSON.stringify(data), 'error');
+      }
+    } catch(e) {
+      showStatus('search-status', 'Request failed: ' + e.message, 'error');
+    }
+    btn.disabled = false;
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8081:8080"
+    volumes:
+      - image_store:/app/images
+      - chroma_data:/app/chroma_data
+      - hf_cache:/root/.cache/huggingface
+    environment:
+      - EMBEDDING_MODEL=clip-ViT-B-32
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+
+volumes:
+  image_store:
+  chroma_data:
+  hf_cache:

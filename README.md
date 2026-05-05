@@ -1,145 +1,92 @@
-# Coding Workshop — Python for Beginners
+# AI Workshop
 
-Welcome! This workshop takes you from absolute zero to writing real programs in Python. No prior experience needed.
+A hands-on work shop where we will use technology to solve actual problems in your own life.
 
----
+Today's technology is more capable than ever, and you might be surprised just how easy it is to control with the right techniques and mindset. Yet somehow the supposed miracles of technological development have yet to impact our lives in a positive way. Rather than serving us, we often find the opposite -- many of most commercially successful AI applications _feed_ on our attention, often at the cost of our wellbeing. That's not because AI is evil, just the unfortunate alignment of incentives that many of the top tech talent also wants to make money. Rather than unknowingly selling your attention and data, you can take control and make your technology work for you.
 
-## Table of Contents
+This workshop
 
-1. [Setup](#setup)
-   - [Windows](#windows)
-   - [Mac](#mac)
-2. [How to Run a Script](#how-to-run-a-script)
-3. [Lessons](#lessons)
-4. [Tips for Beginners](#tips-for-beginners)
+This course will focus around a personal project: something that would help you in your life or just something you think is cool. We're going to use te
+
+This is not a programming course, though programming is supplemental. It's not a test or credential. You showed up because you're curious and motivated, and our job is to help you turn that into
 
 ---
 
-## Setup
+## Who's running this
 
-### Windows
-
-**Step 1 — Install Python**
-
-1. Open your browser and go to [https://www.python.org/downloads/](https://www.python.org/downloads/)
-2. Click the big yellow **"Download Python 3.x.x"** button.
-3. Run the installer. **Important:** On the first screen, check the box that says **"Add Python to PATH"** before clicking Install Now.
-4. Click **Install Now** and follow the prompts.
-
-**Step 2 — Verify the installation**
-
-1. Press `Windows + R`, type `cmd`, and press Enter to open the Command Prompt.
-2. Type the following and press Enter:
-   ```
-   python --version
-   ```
-   You should see something like `Python 3.12.0`. If you see an error, try `python3 --version`.
-
-**Step 3 — Get the workshop files**
-
-If you have Git installed:
-```
-git clone https://github.com/your-org/coding-workshop.git
-cd coding-workshop
-```
-
-Or download the ZIP from the GitHub page (green "Code" button → "Download ZIP"), then unzip it.
+Ryan Franz and Shen Ge. Friends and engineers with backgrounds in physics, programming, and aerospace. We have decades of combined experience getting hard things to work in the real world, including putting 2 NOVA-C landers on the Moon with the IM-1 and IM-2 missions. We know how to make technology work and we can help you get your technology to work. We'll put you in the driver seat of your own technology. How can we promise that? We're not the teachers, we're the guides. AI is the teacher. The skill is having a vision, knowing what's reasonable, and knowing where to look when things go wrong.
 
 ---
 
-### Mac
+## The bet behind this class
 
-**Step 1 — Install Python**
+There is a widening gap between what technology can do and what most people are *using* technology to do.
 
-Mac may already have Python 2 installed, but we need Python 3.
+In the last few years, a new generation of AI tools has made it possible for a single motivated person — without a software background — to direct a computer to do things that, until very recently, required teams of engineers. The technology is here. What's missing, for most people, is the awareness that they can pick it up and use it themselves.
 
-Option A — Download directly:
-1. Go to [https://www.python.org/downloads/](https://www.python.org/downloads/)
-2. Click **"Download Python 3.x.x"** and run the `.pkg` installer.
-
-Option B — Use Homebrew (recommended if you plan to code regularly):
-1. Open **Terminal** (press `Cmd + Space`, type "Terminal", press Enter).
-2. Install Homebrew by pasting this command:
-   ```
-   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-   ```
-3. Then install Python:
-   ```
-   brew install python
-   ```
-
-**Step 2 — Verify the installation**
-
-In Terminal, run:
-```
-python3 --version
-```
-You should see `Python 3.x.x`.
-
-**Step 3 — Get the workshop files**
-
-```
-git clone https://github.com/your-org/coding-workshop.git
-cd coding-workshop
-```
-
-Or download and unzip the ZIP file from GitHub.
+That is what this class is about: closing that gap, one person at a time.
 
 ---
 
-## How to Run a Script
+## What you'll actually do
 
-All workshop scripts live in the `python/` folder.
+There is one organizing idea: **your personal project**.
 
-**Windows (Command Prompt):**
-```
-cd coding-workshop\python
-python 01_hello_world.py
-```
+Somewhere in your life, there's friction. A repetitive task you do by hand. Not being able to find things because you organize them into random piles in your attic. A small business workflow that should take 5 minutes and takes 45. Something you've been meaning to figure out for years but never had the time. 
 
-**Mac / Linux (Terminal):**
-```
-cd coding-workshop/python
-python3 01_hello_world.py
-```
+It's never been easier to address these frictions than the present. It doesn't have to be today, but I want you thinking: if you were Iron Man and you could just snap your fingers and make your laptop, cellphone, smart devices do anything you wanted, what would you do with that power? It's not just "hypothetically possible" with AI. AI _is_ that power, and it's probably already in your pocket. It's my job to guide and motivate you into realizing what you can do with that.
 
-> **Tip:** If `python` doesn't work on Mac/Linux, use `python3`. They refer to the same thing on most systems; it's just a naming difference.
+
+See [`personal-project.md`](personal-project.md) for more on what a project can look like and how loose the requirements are. (Spoiler: very loose.)
 
 ---
 
-## Lessons
+## What this class is *not*
 
-Work through the files in order. Each one builds on the previous.
-
-| File | Topic | What You'll Learn |
-|------|-------|-------------------|
-| `01_hello_world.py` | Hello World | Running your first program; the `print()` function |
-| `02_variables.py` | Variables | Storing and naming data; f-strings |
-| `03_datatypes.py` | Data Types | int, float, str, bool, None; type conversion; arithmetic |
-| `04_conditionals.py` | Conditionals | `if`, `elif`, `else`; comparison and logical operators |
-| `05_loops.py` | Loops | `for` loops, `while` loops, `break`, `continue`, `range()` |
-| `06_functions.py` | Functions | Defining and calling functions; parameters; return values |
-| `07_lists_and_dicts.py` | Lists & Dicts | Python's core data structures; list comprehensions |
-| `08_classes.py` | Classes & OOP | Objects, attributes, methods, inheritance |
-| `09_error_handling.py` | Error Handling | `try`/`except`; raising exceptions; writing robust code |
-| `10_file_io.py` | File I/O | Reading and writing text files and CSV files |
-| `11_putting_it_together.py` | Capstone | A complete interactive program combining all concepts |
-
-### How each lesson is structured
-
-Every file follows the same pattern:
-
-1. **Comment header** — explains the topic and how to run the file.
-2. **Concept sections** — each major idea is demonstrated with working code and inline comments.
-3. **Try it yourself** — a challenge at the bottom for you to attempt on your own.
+- **Not a SaaS demo.** We are not going to teach you how to pay company X to do thing Y. The whole point is to put *you* in control.
+- **Not a graded class.** No tests, no homework, no minimum project complexity, no wrong answers, you can't mess up. Being present is the bar.
+- **Not a credential.** There is no credential associated with taking this class. The reward is understanding how to use technology. Although if you _want_ I'll invent a digital token that we can agree represents a credential, and I'll try to convince why that's more authentic and useful than any other artifact I could hand you.
+- **Not a promise that everything is easy.** Some things will be frustrating. The two of us are here to get you unstuck when you are.
 
 ---
 
-## Tips for Beginners
+## Our biases (so they're not surprises)
 
-- **Read the comments.** Lines starting with `#` explain what the code does and why. Don't skip them.
-- **Run the code first, then read it.** Seeing the output makes the code much easier to understand.
-- **Change things and see what happens.** Break the code on purpose — that's how you learn.
-- **Indentation matters in Python.** Each level of indentation is 4 spaces (or one Tab key press). Misaligned code will produce an `IndentationError`.
-- **Error messages are your friends.** Python's errors tell you exactly which line failed and why. Read them carefully before asking for help.
-- **Look things up.** Even experienced programmers search the web constantly. [docs.python.org](https://docs.python.org/3/) is the official reference.
+- **Free and open source by default.** Open-weight models, self-hostable tools, standard formats. We will not steer you into a walled garden if we can help it.
+- **Local-first when it's reasonable.** Running things on your own machine is often simpler, cheaper, and more private than people assume. Cloud compute has genuine uses too but you should have an idea of what's reasonable.
+- **Honest about limits.** AI is powerful and AI is fallible. We'll show you both. Calibration matters more than hype.
+
+---
+
+## Sessions
+
+We're starting with one class. If it feels valuable to people, it continues.
+
+- [`sessions/01-orientation.md`](sessions/01-orientation.md) — what to expect at the first session
+
+---
+
+## Repository layout
+
+```
+.
+├── README.md              ← you are here
+├── personal-project.md    ← what a personal project is and isn't
+├── sessions/              ← per-session notes for students
+├── reference/             ← background material to dip into when a project needs it
+│   ├── python/            ← self-paced Python primer
+│   ├── git/               ← version control basics
+│   ├── github/            ← sharing and backing up code
+│   ├── huggingface/       ← grabbing and running open-weight models
+│   ├── pytorch/           ← the framework most modern AI is written in
+│   ├── docker/            ← running other people's software cleanly
+│   └── papers/            ← a small reading list (Attention Is All You Need, GPT 1–4)
+└── examples/              ← full, working example projects you can run, read, or fork
+    ├── image_meaning_db/  ← search images by meaning (CLIP + ChromaDB + FastAPI)
+    └── audio_meaning_db/  ← search spoken audio by what's said (Whisper + embeddings)
+```
+
+Most of the new entries above are placeholders for now — they'll fill in as the class progresses or as projects pull us toward them.
+
+---
+
