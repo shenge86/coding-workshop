@@ -1,0 +1,63 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+    # Uncomment the block below if you have an NVIDIA GPU and the
+    # NVIDIA container toolkit installed. Vision models are dramatically
+    # faster with a GPU, but everything in this example also runs on CPU.
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+  model-puller:
+    image: ollama/ollama:latest
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    entrypoint: ["/bin/bash", "-c"]
+    # `ollama pull` shows a redrawing progress bar with carriage returns and
+    # ANSI cursor-hide codes. Without a TTY (which is the case here) that
+    # comes out of `docker logs` as invisible output plus a hijacked cursor.
+    # The pipeline below converts \r into \n so each progress update becomes
+    # its own log line, and strips ANSI escape sequences so the cursor is
+    # left alone.
+    command:
+      - |
+        set -eo pipefail
+        echo "Pulling ${OLLAMA_MODEL:-qwen3.5:9b} (this may take a while on first run)..."
+        ollama pull "${OLLAMA_MODEL:-qwen3.5:9b}" 2>&1 \
+          | stdbuf -oL tr '\r' '\n' \
+          | stdbuf -oL sed -E 's/\x1b\[[?0-9;]*[a-zA-Z]//g'
+        echo "Model ${OLLAMA_MODEL:-qwen3.5:9b} is ready. You can now run the demo scripts on the host."
+    restart: "no"
+
+  web:
+    build: ./web
+    ports:
+      - "8082:8080"
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-qwen3.5:9b}
+    volumes:
+      - ./scripts:/app/scripts:ro
+      - ./sample_images:/app/sample_images:ro
+    depends_on:
+      ollama:
+        condition: service_healthy
+
+volumes:
+  ollama_models:
