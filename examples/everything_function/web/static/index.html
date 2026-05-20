@@ -1,0 +1,770 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>everything_function</title>
+  <style>
+    :root {
+      --bg: #f7f7f4;
+      --panel: #ffffff;
+      --border: #e3e1da;
+      --text: #222;
+      --muted: #7a766c;
+      --accent: #2858d6;
+      --accent-hover: #1d44ad;
+      --code-bg: #f1efe6;
+      --good: #1f7a3a;
+      --bad: #b03030;
+      --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    .layout { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+    nav {
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      padding: 24px 16px;
+    }
+    nav h1 {
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 8px 12px;
+      font-weight: 600;
+    }
+    nav .group-label {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 18px 0 6px 12px;
+    }
+    nav ul { list-style: none; padding: 0; margin: 0; }
+    nav li button {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: 0;
+      padding: 8px 12px;
+      border-radius: 6px;
+      color: var(--text);
+      font: inherit;
+      cursor: pointer;
+    }
+    nav li button:hover { background: var(--code-bg); }
+    nav li button.active { background: var(--accent); color: white; }
+
+    main { padding: 32px 40px; max-width: 920px; }
+    main h2 { margin: 0 0 6px; font-size: 28px; font-weight: 700; }
+    main .subtitle { color: var(--muted); margin: 0 0 24px; }
+
+    .demo { display: none; }
+    .demo.active { display: block; }
+
+    .field { margin: 12px 0; display: flex; flex-direction: column; gap: 4px; }
+    .field label { font-weight: 600; font-size: 13px; }
+    .field input, .field textarea, .field select {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--panel);
+      font: inherit;
+      color: var(--text);
+    }
+    .field textarea { font-family: var(--sans); min-height: 100px; resize: vertical; }
+    .field input[type="number"] { max-width: 200px; }
+    .inline-fields { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
+    .inline-fields .field { flex: 0 1 auto; }
+
+    button.run {
+      margin-top: 12px;
+      background: var(--accent);
+      color: white;
+      border: 0;
+      padding: 10px 22px;
+      border-radius: 6px;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button.run:hover { background: var(--accent-hover); }
+    button.run:disabled { opacity: 0.6; cursor: wait; }
+
+    .output {
+      margin-top: 20px;
+      padding: 16px 18px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      min-height: 60px;
+    }
+    .output .label {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .output .row { margin: 8px 0; }
+    .output .value { font-family: var(--mono); font-size: 15px; white-space: pre-wrap; word-break: break-word; }
+    .output .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .output .compare > div { background: var(--code-bg); padding: 12px; border-radius: 6px; }
+    .output.empty { color: var(--muted); font-style: italic; }
+    .output .match-yes { color: var(--good); font-weight: 600; }
+    .output .match-no { color: var(--bad); font-weight: 600; }
+    .output .err { color: var(--bad); font-family: var(--mono); white-space: pre-wrap; }
+
+    .help { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+    .pretty-poly { font-family: var(--mono); font-size: 18px; padding: 10px 14px; background: var(--code-bg); border-radius: 6px; display: inline-block; }
+
+    .samples { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+    .samples label {
+      cursor: pointer;
+      border: 2px solid transparent;
+      border-radius: 6px;
+      padding: 4px;
+      background: var(--panel);
+    }
+    .samples label.selected { border-color: var(--accent); }
+    .samples img { display: block; height: 110px; border-radius: 4px; }
+    .samples input { display: none; }
+
+    .dropzone {
+      margin-top: 4px;
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 18px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .dropzone:hover { border-color: var(--accent); }
+    .dropzone.dragover {
+      border-color: var(--accent);
+      background: #eef3ff;
+    }
+    .dropzone img.preview-img {
+      max-width: 100%;
+      max-height: 280px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: white;
+    }
+    .dropzone .hint { color: var(--muted); font-size: 14px; }
+    .dropzone .source-tag {
+      font-size: 12px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+    .dropzone input[type="file"] { display: none; }
+
+    .small { font-size: 13px; color: var(--muted); }
+    .or-separator {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin: 12px 0 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <nav>
+      <h1>everything_function</h1>
+      <p class="small" style="margin: 0 12px 12px; color: var(--muted);">Same code, any function.</p>
+
+      <div class="group-label">Math</div>
+      <ul>
+        <li><button data-demo="arithmetic" class="active">Arithmetic</button></li>
+        <li><button data-demo="algebra">Polynomial roots</button></li>
+        <li><button data-demo="prime">Prime factorization</button></li>
+      </ul>
+
+      <div class="group-label">Text</div>
+      <ul>
+        <li><button data-demo="sentiment">Sentiment</button></li>
+        <li><button data-demo="translate">Translate</button></li>
+        <li><button data-demo="summarize">Summarize</button></li>
+        <li><button data-demo="action_list">Action list</button></li>
+      </ul>
+
+      <div class="group-label">Vision</div>
+      <ul>
+        <li><button data-demo="image_label">Image label</button></li>
+        <li><button data-demo="recipe">Food → recipe</button></li>
+        <li><button data-demo="ocr">OCR</button></li>
+      </ul>
+    </nav>
+
+    <main>
+      <!-- arithmetic -->
+      <section class="demo active" id="demo-arithmetic">
+        <h2>Arithmetic</h2>
+        <p class="subtitle">AI as <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>. Compared side-by-side against real Python.</p>
+        <form data-form="arithmetic">
+          <div class="inline-fields">
+            <div class="field"><label>a</label><input type="number" name="a" step="any" value="47" /></div>
+            <div class="field"><label>op</label>
+              <select name="op">
+                <option value="+">+</option>
+                <option value="-">-</option>
+                <option value="*">*</option>
+                <option value="/">/</option>
+              </select>
+            </div>
+            <div class="field"><label>b</label><input type="number" name="b" step="any" value="28" /></div>
+          </div>
+          <button class="run" type="submit">Run</button>
+        </form>
+        <div class="output empty" data-out="arithmetic">Click Run to ask the model.</div>
+      </section>
+
+      <!-- algebra -->
+      <section class="demo" id="demo-algebra">
+        <h2>Polynomial roots</h2>
+        <p class="subtitle">Give the AI a polynomial. It guesses the real roots. <code>numpy.roots</code> solves it for real.</p>
+        <form data-form="algebra">
+          <div class="field">
+            <label>Coefficients (high-degree to low-degree, comma- or space-separated)</label>
+            <input type="text" name="coefficients" value="1, -7, 12" />
+            <p class="help">e.g. <code>1, -7, 12</code> is x² − 7x + 12.</p>
+          </div>
+          <div id="algebra-poly-preview" style="margin: 8px 0;"></div>
+          <button class="run" type="submit">Run</button>
+        </form>
+        <div class="output empty" data-out="algebra">Click Run to ask the model.</div>
+      </section>
+
+      <!-- prime factorization -->
+      <section class="demo" id="demo-prime">
+        <h2>Prime factorization</h2>
+        <p class="subtitle">AI tries to give the prime factorization. Real Python does it by trial division.</p>
+        <form data-form="prime">
+          <div class="field">
+            <label>n</label>
+            <input type="number" name="n" min="2" value="360" />
+          </div>
+          <button class="run" type="submit">Run</button>
+        </form>
+        <div class="output empty" data-out="prime">Click Run to ask the model.</div>
+      </section>
+
+      <!-- sentiment -->
+      <section class="demo" id="demo-sentiment">
+        <h2>Sentiment</h2>
+        <p class="subtitle">Label a sentence as <code>positive</code>, <code>negative</code>, or <code>neutral</code>.</p>
+        <form data-form="sentiment">
+          <div class="field">
+            <label>Sentence</label>
+            <textarea name="text">Honestly the best coffee I've had in months.</textarea>
+          </div>
+          <button class="run" type="submit">Run</button>
+        </form>
+        <div class="output empty" data-out="sentiment">Click Run to ask the model.</div>
+      </section>
+
+      <!-- translate -->
+      <section class="demo" id="demo-translate">
+        <h2>Translate</h2>
+        <p class="subtitle">Type any sentence and any target language. No language pair training needed.</p>
+        <form data-form="translate">
+          <div class="field">
+            <label>Sentence</label>
+            <textarea name="text">The library closes at six o'clock on Sundays.</textarea>
+          </div>
+          <div class="field">
+            <label>Target language</label>
+            <input type="text" name="target_language" value="Brazilian Portuguese" />
+          </div>
+          <button class="run" type="submit">Run</button>
+        </form>
+        <div class="output empty" data-out="translate">Click Run to ask the model.</div>
+      </section>
+
+      <!-- summarize -->
+      <section class="demo" id="demo-summarize">
+        <h2>Summarize</h2>
+        <p class="subtitle">Shrink a passage down to a target word count.</p>
+        <form data-form="summarize">
+          <div class="field">
+            <label>Passage</label>
+            <textarea name="text">Photosynthesis is the process by which green plants, algae, and certain bacteria convert light energy, typically from the sun, into chemical energy stored in glucose. Inside the chloroplasts of plant cells, chlorophyll absorbs sunlight and uses it to split water molecules into oxygen, which is released as a byproduct, and hydrogen, which combines with carbon dioxide drawn from the air to form sugars. These sugars fuel the plant's growth and ultimately feed nearly every organism on Earth, either directly or indirectly. The oxygen released as a byproduct is also what most life on the planet depends on to breathe.</textarea>
+          </div>
+          <div class="field">
+            <label>Max words</label>
+            <input type="number" name="max_words" min="5" value="20" />
+          </div>
+          <button class="run" type="submit">Run</button>
+        </form>
+        <div class="output empty" data-out="summarize">Click Run to ask the model.</div>
+      </section>
+
+      <!-- action list -->
+      <section class="demo" id="demo-action_list">
+        <h2>Action list</h2>
+        <p class="subtitle">Messy stream-of-consciousness in, clean bulleted to-dos out.</p>
+        <form data-form="action_list">
+          <div class="field">
+            <label>Description</label>
+            <textarea name="description">ugh ok so the dishwasher is making that noise again, I should probably look at the filter or just call the repair guy, also the lawn is getting long again it's been like three weeks, and we're almost out of dog food I keep meaning to grab a bag, oh and Sarah's birthday is on Saturday I haven't gotten anything yet</textarea>
+          </div>
+          <button class="run" type="submit">Run</button>
+        </form>
+        <div class="output empty" data-out="action_list">Click Run to ask the model.</div>
+      </section>
+
+      <!-- image label -->
+      <section class="demo" id="demo-image_label">
+        <h2>Image label</h2>
+        <p class="subtitle">Hand the model a picture. Get a short label back.</p>
+        <form data-form="image_label" data-image-form>
+          <div class="field">
+            <label>Image:</label>
+            <div class="dropzone" data-dropzone tabindex="0">
+              <div data-preview></div>
+              <div class="hint">Drop · paste (Ctrl/Cmd+V) · click to choose a file</div>
+              <div class="source-tag" data-source-tag></div>
+              <input type="file" name="file" accept="image/*" />
+            </div>
+            <div class="or-separator">or pick a sample</div>
+            <div class="samples" data-sample-grid></div>
+          </div>
+          <button class="run" type="submit">Run</button>
+        </form>
+        <div class="output empty" data-out="image_label">Click Run to ask the model.</div>
+      </section>
+
+      <!-- recipe -->
+      <section class="demo" id="demo-recipe">
+        <h2>Food → recipe</h2>
+        <p class="subtitle">Picture of a dish in. Ingredients and steps out.</p>
+        <form data-form="recipe_from_food" data-image-form>
+          <div class="field">
+            <label>Image:</label>
+            <div class="dropzone" data-dropzone tabindex="0">
+              <div data-preview></div>
+              <div class="hint">Drop · paste (Ctrl/Cmd+V) · click to choose a file</div>
+              <div class="source-tag" data-source-tag></div>
+              <input type="file" name="file" accept="image/*" />
+            </div>
+            <div class="or-separator">or pick a sample</div>
+            <div class="samples" data-sample-grid></div>
+          </div>
+          <button class="run" type="submit">Run</button>
+        </form>
+        <div class="output empty" data-out="recipe_from_food">Click Run to ask the model.</div>
+      </section>
+
+      <!-- ocr -->
+      <section class="demo" id="demo-ocr">
+        <h2>OCR</h2>
+        <p class="subtitle">Read printed text out of an image. No OCR engine — just a vision-language model asked to read.</p>
+        <form data-form="ocr" data-image-form>
+          <div class="field">
+            <label>Image:</label>
+            <div class="dropzone" data-dropzone tabindex="0">
+              <div data-preview></div>
+              <div class="hint">Drop · paste (Ctrl/Cmd+V) · click to choose a file</div>
+              <div class="source-tag" data-source-tag></div>
+              <input type="file" name="file" accept="image/*" />
+            </div>
+            <div class="or-separator">or pick a sample</div>
+            <div class="samples" data-sample-grid></div>
+          </div>
+          <button class="run" type="submit">Run</button>
+        </form>
+        <div class="output empty" data-out="ocr">Click Run to ask the model.</div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // ----- nav switching -----
+    const navButtons = document.querySelectorAll("nav button[data-demo]");
+    const demos = document.querySelectorAll("section.demo");
+    navButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        navButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        demos.forEach(d => d.classList.remove("active"));
+        document.getElementById("demo-" + btn.dataset.demo).classList.add("active");
+      });
+    });
+
+    // ----- helpers -----
+    function setOutput(name, html) {
+      const el = document.querySelector(`[data-out="${name}"]`);
+      el.classList.remove("empty");
+      el.innerHTML = html;
+    }
+    function setLoading(name) {
+      setOutput(name, `<div class="small">asking the model... (CPU inference can take a few seconds, vision longer)</div>`);
+    }
+    function setError(name, err) {
+      setOutput(name, `<div class="err">error: ${escapeHtml(err)}</div>`);
+    }
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+    }
+    async function postJSON(url, body) {
+      const r = await fetch(url, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(body),
+      });
+      if (!r.ok) throw new Error(await r.text().catch(() => r.statusText));
+      return r.json();
+    }
+    async function postForm(url, form) {
+      const r = await fetch(url, {method: "POST", body: form});
+      if (!r.ok) throw new Error(await r.text().catch(() => r.statusText));
+      return r.json();
+    }
+    function withRunning(btn, fn) {
+      const original = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = "Running…";
+      return fn().finally(() => { btn.disabled = false; btn.textContent = original; });
+    }
+
+    // ----- arithmetic -----
+    document.querySelector('[data-form="arithmetic"]').addEventListener("submit", async e => {
+      e.preventDefault();
+      const f = e.target;
+      const a = parseFloat(f.a.value), b = parseFloat(f.b.value), op = f.op.value;
+      setLoading("arithmetic");
+      try {
+        await withRunning(f.querySelector("button"), async () => {
+          const r = await postJSON("/api/arithmetic", {a, b, op});
+          const match = r.ai === r.python;
+          setOutput("arithmetic", `
+            <div class="row"><span class="label">expression</span><div class="value">${a} ${op} ${b}</div></div>
+            <div class="compare">
+              <div><div class="label">AI says</div><div class="value">${escapeHtml(r.ai)}</div></div>
+              <div><div class="label">python says</div><div class="value">${escapeHtml(r.python)}</div></div>
+            </div>
+            <div class="row" style="margin-top:14px;">match? <span class="${match ? 'match-yes' : 'match-no'}">${match ? 'yes' : 'no'}</span></div>
+          `);
+        });
+      } catch (err) { setError("arithmetic", err.message); }
+    });
+
+    // ----- algebra: live polynomial preview -----
+    function formatPolynomial(coeffs) {
+      if (!coeffs.length) return "0";
+      const degree = coeffs.length - 1;
+      const parts = [];
+      coeffs.forEach((c, i) => {
+        if (c === 0) return;
+        const power = degree - i;
+        const abs = Math.abs(c);
+        const sign = c > 0 ? "+" : "-";
+        let body;
+        if (power === 0) body = String(abs);
+        else {
+          const coef = abs === 1 ? "" : String(abs);
+          const v = power === 1 ? "x" : `x^${power}`;
+          body = `${coef}${v}`;
+        }
+        parts.push(`${sign} ${body}`);
+      });
+      let expr = parts.join(" ");
+      if (expr.startsWith("+ ")) expr = expr.slice(2);
+      else if (expr.startsWith("- ")) expr = "-" + expr.slice(2);
+      return expr;
+    }
+    function parseCoeffs(raw) {
+      return raw.split(/[, ]+/).filter(p => p).map(p => parseFloat(p));
+    }
+    const algInput = document.querySelector('[data-form="algebra"] input[name="coefficients"]');
+    const algPreview = document.getElementById("algebra-poly-preview");
+    function updatePolyPreview() {
+      const coeffs = parseCoeffs(algInput.value);
+      if (coeffs.length < 2 || coeffs.some(isNaN)) {
+        algPreview.innerHTML = `<span class="small">enter at least 2 numeric coefficients</span>`;
+      } else {
+        algPreview.innerHTML = `<span class="small">polynomial:</span> <span class="pretty-poly">${escapeHtml(formatPolynomial(coeffs))}</span>`;
+      }
+    }
+    algInput.addEventListener("input", updatePolyPreview);
+    updatePolyPreview();
+
+    document.querySelector('[data-form="algebra"]').addEventListener("submit", async e => {
+      e.preventDefault();
+      const f = e.target;
+      const coeffs = parseCoeffs(f.coefficients.value);
+      if (coeffs.length < 2 || coeffs.some(isNaN)) { setError("algebra", "need ≥2 numeric coefficients"); return; }
+      setLoading("algebra");
+      try {
+        await withRunning(f.querySelector("button"), async () => {
+          const r = await postJSON("/api/algebra", {coefficients: coeffs});
+          setOutput("algebra", `
+            <div class="row"><span class="label">polynomial</span><div class="value">${escapeHtml(r.polynomial)}</div></div>
+            <div class="compare">
+              <div><div class="label">AI says</div><div class="value">${escapeHtml(r.ai)}</div></div>
+              <div><div class="label">numpy says</div><div class="value">${escapeHtml(JSON.stringify(r.python))}</div></div>
+            </div>
+          `);
+        });
+      } catch (err) { setError("algebra", err.message); }
+    });
+
+    // ----- prime -----
+    document.querySelector('[data-form="prime"]').addEventListener("submit", async e => {
+      e.preventDefault();
+      const f = e.target;
+      const n = parseInt(f.n.value, 10);
+      if (!Number.isFinite(n) || n < 2) { setError("prime", "n must be an integer ≥ 2"); return; }
+      setLoading("prime");
+      try {
+        await withRunning(f.querySelector("button"), async () => {
+          const r = await postJSON("/api/prime_factorization", {n});
+          const match = r.ai === r.python;
+          setOutput("prime", `
+            <div class="row"><span class="label">n</span><div class="value">${n}</div></div>
+            <div class="compare">
+              <div><div class="label">AI says</div><div class="value">${escapeHtml(r.ai)}</div></div>
+              <div><div class="label">python says</div><div class="value">${escapeHtml(r.python)}</div></div>
+            </div>
+            <div class="row" style="margin-top:14px;">match? <span class="${match ? 'match-yes' : 'match-no'}">${match ? 'yes' : 'no'}</span></div>
+          `);
+        });
+      } catch (err) { setError("prime", err.message); }
+    });
+
+    // ----- text demos: sentiment, translate, summarize, action_list -----
+    function wireTextDemo(formName, apiPath, fieldsFn, renderFn) {
+      document.querySelector(`[data-form="${formName}"]`).addEventListener("submit", async e => {
+        e.preventDefault();
+        const f = e.target;
+        const payload = fieldsFn(f);
+        if (payload === null) return;
+        setLoading(formName);
+        try {
+          await withRunning(f.querySelector("button"), async () => {
+            const r = await postJSON(apiPath, payload);
+            setOutput(formName, renderFn(payload, r));
+          });
+        } catch (err) { setError(formName, err.message); }
+      });
+    }
+    wireTextDemo(
+      "sentiment", "/api/sentiment",
+      f => ({text: f.text.value.trim()}),
+      (req, r) => `
+        <div class="row"><span class="label">input</span><div class="value">${escapeHtml(req.text)}</div></div>
+        <div class="row"><span class="label">sentiment</span><div class="value">${escapeHtml(r.result)}</div></div>`,
+    );
+    wireTextDemo(
+      "translate", "/api/translate",
+      f => ({text: f.text.value.trim(), target_language: f.target_language.value.trim()}),
+      (req, r) => `
+        <div class="row"><span class="label">original</span><div class="value">${escapeHtml(req.text)}</div></div>
+        <div class="row"><span class="label">target language</span><div class="value">${escapeHtml(req.target_language)}</div></div>
+        <div class="row"><span class="label">translation</span><div class="value">${escapeHtml(r.result)}</div></div>`,
+    );
+    wireTextDemo(
+      "summarize", "/api/summarize",
+      f => ({text: f.text.value.trim(), max_words: parseInt(f.max_words.value, 10)}),
+      (req, r) => `
+        <div class="row"><span class="label">original (${req.text.split(/\s+/).length} words)</span><div class="value">${escapeHtml(req.text)}</div></div>
+        <div class="row"><span class="label">summary (max ${req.max_words} words)</span><div class="value">${escapeHtml(r.result)}</div></div>`,
+    );
+    wireTextDemo(
+      "action_list", "/api/action_list",
+      f => ({description: f.description.value.trim()}),
+      (req, r) => `
+        <div class="row"><span class="label">input</span><div class="value">${escapeHtml(req.description)}</div></div>
+        <div class="row"><span class="label">action list</span><div class="value">${escapeHtml(r.result)}</div></div>`,
+    );
+
+    // ----- image demos: shared scaffolding -----
+    // Each image form has three ways to provide an image:
+    //   1. pick a sample from the grid below the dropzone
+    //   2. drop a file onto the dropzone
+    //   3. paste a file from the clipboard while the demo is active
+    //   4. click the dropzone to open a file picker
+    //
+    // We track the current selection on the form element itself:
+    //   form._chosen = { kind: "sample", name: "food_pizza.jpg" }
+    //              | { kind: "file",   file: File, url: ObjectURL }
+    // This way submit knows what to send and preview knows what to show.
+    function setChosen(form, chosen) {
+      // revoke any previous object URL to avoid leaking memory
+      if (form._chosen?.kind === "file" && form._chosen.url) {
+        URL.revokeObjectURL(form._chosen.url);
+      }
+      form._chosen = chosen;
+
+      const preview = form.querySelector("[data-preview]");
+      const tag = form.querySelector("[data-source-tag]");
+      preview.innerHTML = "";
+
+      if (chosen.kind === "file") {
+        const img = document.createElement("img");
+        img.src = chosen.url;
+        img.className = "preview-img";
+        preview.appendChild(img);
+        tag.textContent = `using uploaded image: ${chosen.file.name || "(pasted)"}`;
+      } else if (chosen.kind === "sample") {
+        const img = document.createElement("img");
+        img.src = `/api/sample_images/${chosen.name}`;
+        img.className = "preview-img";
+        preview.appendChild(img);
+        tag.textContent = `using sample: ${chosen.name}`;
+      }
+
+      // sync the sample-grid radios to reflect the current choice
+      form.querySelectorAll('input[name="sample"]').forEach(r => {
+        r.checked = (chosen.kind === "sample" && r.value === chosen.name);
+        r.closest("label").classList.toggle("selected", r.checked);
+      });
+    }
+
+    function attachFile(form, file) {
+      if (!file || !file.type.startsWith("image/")) return false;
+      const url = URL.createObjectURL(file);
+      setChosen(form, {kind: "file", file, url});
+      return true;
+    }
+
+    fetch("/api/sample_images").then(r => r.json()).then(samples => {
+      document.querySelectorAll("form[data-image-form]").forEach(form => {
+        const formName = form.dataset.form;
+        const grid = form.querySelector("[data-sample-grid]");
+
+        samples.forEach((s, i) => {
+          const id = `${formName}-sample-${i}`;
+          const label = document.createElement("label");
+          label.innerHTML = `
+            <input type="radio" name="sample" value="${s.name}" id="${id}" />
+            <img src="${s.url}" alt="${s.name}" />
+            <div class="small" style="text-align:center; margin-top:4px;">${s.name}</div>
+          `;
+          grid.appendChild(label);
+        });
+        grid.addEventListener("change", e => {
+          if (e.target.name === "sample" && e.target.checked) {
+            setChosen(form, {kind: "sample", name: e.target.value});
+          }
+        });
+
+        // default selection: first sample
+        if (samples.length) setChosen(form, {kind: "sample", name: samples[0].name});
+
+        // dropzone wiring: click-to-pick, drag-and-drop
+        const dropzone = form.querySelector("[data-dropzone]");
+        const fileInput = form.querySelector('input[type="file"]');
+
+        dropzone.addEventListener("click", e => {
+          // don't reopen the picker if the user is clicking a child link/button
+          if (e.target.closest("input, button, a")) return;
+          fileInput.click();
+        });
+        fileInput.addEventListener("change", () => {
+          if (fileInput.files[0]) attachFile(form, fileInput.files[0]);
+          fileInput.value = "";  // allow re-picking the same file later
+        });
+
+        ["dragenter", "dragover"].forEach(ev => {
+          dropzone.addEventListener(ev, e => {
+            e.preventDefault();
+            dropzone.classList.add("dragover");
+          });
+        });
+        ["dragleave", "drop"].forEach(ev => {
+          dropzone.addEventListener(ev, e => {
+            e.preventDefault();
+            dropzone.classList.remove("dragover");
+          });
+        });
+        dropzone.addEventListener("drop", e => {
+          const file = e.dataTransfer?.files?.[0];
+          if (!attachFile(form, file)) {
+            // Some browsers ship an image via the items API when dragging from another page
+            for (const item of e.dataTransfer?.items || []) {
+              if (item.kind === "file" && item.type.startsWith("image/")) {
+                if (attachFile(form, item.getAsFile())) return;
+              }
+            }
+          }
+        });
+      });
+    });
+
+    // ----- paste-anywhere handler -----
+    // When the active demo is an image one, Ctrl/Cmd+V attaches the clipboard image
+    // (works for screenshots, copied images from web pages, etc.).
+    document.addEventListener("paste", e => {
+      const activeDemo = document.querySelector("section.demo.active");
+      const form = activeDemo?.querySelector("form[data-image-form]");
+      if (!form) return;
+      for (const item of e.clipboardData?.items || []) {
+        if (item.kind === "file" && item.type.startsWith("image/")) {
+          const file = item.getAsFile();
+          if (file) {
+            // Rename pasted blobs so the source tag says something useful.
+            const named = new File([file], file.name || `pasted-${Date.now()}.png`, {type: file.type});
+            attachFile(form, named);
+            e.preventDefault();
+            return;
+          }
+        }
+      }
+    });
+
+    // ----- image-form submit -----
+    document.querySelectorAll("form[data-image-form]").forEach(form => {
+      form.addEventListener("submit", async e => {
+        e.preventDefault();
+        const chosen = form._chosen;
+        if (!chosen) {
+          setError(form.dataset.form, "pick a sample, upload, drop, or paste an image first");
+          return;
+        }
+
+        const fd = new FormData();
+        let previewUrl;
+        if (chosen.kind === "file") {
+          fd.append("file", chosen.file);
+          previewUrl = chosen.url;
+        } else {
+          fd.append("sample", chosen.name);
+          previewUrl = `/api/sample_images/${chosen.name}`;
+        }
+
+        const apiPath = `/api/${form.dataset.form}`;
+        setLoading(form.dataset.form);
+        try {
+          await withRunning(form.querySelector("button"), async () => {
+            const r = await postForm(apiPath, fd);
+            setOutput(form.dataset.form, `
+              <div class="row"><span class="label">input</span><div style="margin-top:6px"><img src="${previewUrl}" style="max-width:240px; max-height:180px; border-radius:6px; border:1px solid var(--border);" /></div></div>
+              <div class="row"><span class="label">model output</span><div class="value">${escapeHtml(r.result)}</div></div>
+            `);
+          });
+        } catch (err) { setError(form.dataset.form, err.message); }
+      });
+    });
+  </script>
+</body>
+</html>

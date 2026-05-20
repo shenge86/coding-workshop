@@ -10,6 +10,7 @@ These are intentionally on equal footing — there's no "beginner / intermediate
 |---------|------------|-----------------------|
 | [`image_meaning_db/`](image_meaning_db/) | Search a folder of images by meaning, not filename. Drop in a query image, get back the closest matches. | CLIP embeddings, ChromaDB, FastAPI, a tiny browser UI, all in one Docker container. |
 | [`audio_meaning_db/`](audio_meaning_db/) | Search spoken audio by what's said in it. Drop in a clip, get back the closest segments from your library. | Whisper transcription, sentence embeddings, segment chunking, FastAPI, Docker. |
+| [`everything_function/`](everything_function/) | Ten Python functions — arithmetic, prime factorization, sentiment, translation, OCR, photo→recipe — all backed by the same one-line call to a local AI model. Browser UI + terminal REPLs. | A local Qwen vision-language model in Ollama, FastAPI, Docker Compose, and the realization that a "function" can have a prompt for a body. |
 
 More will be added over time.
 

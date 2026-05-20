@@ -82,8 +82,9 @@ We're starting with one class. If it feels valuable to people, it continues.
 │   ├── docker/            ← running other people's software cleanly
 │   └── papers/            ← a small reading list (Attention Is All You Need, GPT 1–4)
 └── examples/              ← full, working example projects you can run, read, or fork
-    ├── image_meaning_db/  ← search images by meaning (CLIP + ChromaDB + FastAPI)
-    └── audio_meaning_db/  ← search spoken audio by what's said (Whisper + embeddings)
+    ├── image_meaning_db/      ← search images by meaning (CLIP + ChromaDB + FastAPI)
+    ├── audio_meaning_db/      ← search spoken audio by what's said (Whisper + embeddings)
+    └── everything_function/   ← ten "smart Python functions" backed by the same local model call + a browser UI
 ```
 
 Most of the new entries above are placeholders for now — they'll fill in as the class progresses or as projects pull us toward them.
