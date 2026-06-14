@@ -1,6 +1,6 @@
 # image_meaning_db
 
-A self-contained semantic image search tool. Upload images (optionally with a description) to build up a database, then search by image to find the nearest neighbors by meaning. Runs as a single Docker service: a FastAPI backend that embeds images locally with CLIP (`clip-ViT-B-32`) and stores vectors in ChromaDB, served behind a minimal browser UI.
+A self-contained semantic image search tool. Upload images (optionally with a description) to build up a database, then search by image to find the nearest neighbors by meaning. Runs as a single Docker service: a FastAPI backend that embeds images locally with CLIP (`clip-ViT-B-16`) and stores vectors in ChromaDB, served behind a minimal browser UI.
 
 On first launch it auto-seeds the database with ~100 sample images from Lorem Picsum so you have something to search against immediately.
 
@@ -46,7 +46,7 @@ Watch progress with:
 docker compose logs -f backend
 ```
 
-You'll see `Model clip-ViT-B-32 ready.`, then `Seed: N images indexed...` messages as the database fills. The UI is usable throughout — refresh to see the image count climb.
+You'll see `Model clip-ViT-B-16 ready.`, then `Seed: N images indexed...` messages as the database fills. The UI is usable throughout — refresh to see the image count climb.
 
 Subsequent runs reuse the cached model and the existing database, so startup is fast.
 
@@ -79,7 +79,7 @@ If you wipe volumes, the next start will re-download the CLIP model and re-seed 
 
 Environment variables set in `docker-compose.yml`:
 
-- `EMBEDDING_MODEL` — sentence-transformers model name. Default: `clip-ViT-B-32`. If you change this, wipe the `chroma_data` volume — embedding dimensions must match across all stored vectors.
+- `EMBEDDING_MODEL` — sentence-transformers model name. Default: `clip-ViT-B-16`. If you change this, wipe the `chroma_data` volume — even when the embedding dimension is unchanged, vectors from a different model are not comparable, so the database must be rebuilt.
 - `SEED_COUNT` — number of sample images to seed on first launch. Default: `100`. Set to `0` to skip seeding.
 
 Host port mapping is also in `docker-compose.yml`; change the left side of `"8081:8080"` if 8081 conflicts with something else on your machine.

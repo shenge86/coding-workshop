@@ -12,7 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from PIL import Image
 from sentence_transformers import SentenceTransformer
 
-EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL", "clip-ViT-B-32")
+EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL", "clip-ViT-B-16")
 SEED_COUNT = int(os.environ.get("SEED_COUNT", "100"))
 IMAGE_DIR = Path("/app/images")
 CHROMA_DIR = Path("/app/chroma_data")
